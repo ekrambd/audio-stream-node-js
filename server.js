@@ -1,13 +1,24 @@
+// server.js
 const http = require("http");
 const fs = require("fs");
+const path = require("path");
 const { Server } = require("socket.io");
 
 // Create HTTP server
-const server = http.createServer();
+const server = http.createServer((req, res) => {
+  // Optional: serve a simple HTML page for testing
+  if (req.url === "/") {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end("<h1>Audio Streaming Server is running</h1>");
+  } else {
+    res.writeHead(404);
+    res.end("Not Found");
+  }
+});
 
 // Initialize Socket.io
 const io = new Server(server, {
-  cors: { origin: "*" }
+  cors: { origin: "*" },
 });
 
 // Socket.io connection
@@ -20,7 +31,6 @@ io.on("connection", (socket) => {
   socket.on("audio_chunk", (chunk) => {
     chunks.push(Buffer.from(chunk));
     lastChunkTime = Date.now();
-
     console.log("📦 Chunk received:", chunk.byteLength);
   });
 
@@ -32,10 +42,13 @@ io.on("connection", (socket) => {
       const fullAudio = Buffer.concat(chunks);
       chunks = [];
 
-      const filename = `audio_${Date.now()}.webm`;
+      // Ensure 'recordings' folder exists
+      const recordingsDir = path.join(__dirname, "recordings");
+      if (!fs.existsSync(recordingsDir)) fs.mkdirSync(recordingsDir);
+
+      const filename = path.join(recordingsDir, `audio_${Date.now()}.webm`);
 
       fs.writeFileSync(filename, fullAudio);
-
       console.log("💾 Saved:", filename);
     }
   }, 1000);
