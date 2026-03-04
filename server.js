@@ -2,7 +2,10 @@ const http = require("http");
 const fs = require("fs");
 const { Server } = require("socket.io");
 
-const server = http.createServer();
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Socket.IO Audio Server Running");
+});
 const io = new Server(server, {
   cors: { origin: "*" }
 });
