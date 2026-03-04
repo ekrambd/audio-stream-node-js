@@ -2,11 +2,15 @@ const http = require("http");
 const fs = require("fs");
 const { Server } = require("socket.io");
 
+// Create HTTP server
 const server = http.createServer();
+
+// Initialize Socket.io
 const io = new Server(server, {
   cors: { origin: "*" }
 });
 
+// Socket.io connection
 io.on("connection", (socket) => {
   console.log("✅ User connected:", socket.id);
 
@@ -23,7 +27,6 @@ io.on("connection", (socket) => {
   // silence detection loop
   const interval = setInterval(() => {
     if (Date.now() - lastChunkTime > 3000 && chunks.length > 0) {
-
       console.log("🛑 Silence detected");
 
       const fullAudio = Buffer.concat(chunks);
@@ -43,11 +46,8 @@ io.on("connection", (socket) => {
   });
 });
 
-// server.listen(3000, () => {
-//   console.log("🚀 Server running on http://localhost:3000");
-// });
-
+// Listen on port 3000
 const port = 3000;
-app.listen(port, '0.0.0.0', () => {
-    console.log(`Server running on port ${port}`);
+server.listen(port, "0.0.0.0", () => {
+  console.log(`🚀 Server running on http://localhost:${port}`);
 });
